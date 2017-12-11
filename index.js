@@ -42,7 +42,7 @@ module.exports = function lazyrootbeer(dispatch) {
 
     dispatch.hook('C_USE_ITEM', 1, event =>{
       if(TRIGGER_ITEM.includes(event.item)) {
-        drinkBeer();
+        delay = setTimeout(drinkBeer,150);
       }
     })
 
