@@ -32,8 +32,8 @@ module.exports = function lazyrootbeer(dispatch) {
       if (!bosses.has("" + event.creature)) return
 
       if (event.enraged == 1 && !enraged) {
-        drinkBeer();
         enraged = true;
+        delay = setTimeout(drinkBeer,1000);
       }
       else if (event.enraged == 0 && enraged) {
         enraged = false;
@@ -52,6 +52,7 @@ module.exports = function lazyrootbeer(dispatch) {
   })
 
   function drinkBeer() {
+    clearTimeout(delay)
     dispatch.toServer('C_USE_ITEM', 1, {
       ownerId: cid,
       item: ROOTBEER,
