@@ -57,12 +57,12 @@ module.exports = function lazyrootbeer(dispatch) {
     })
 
     dispatch.hook('C_START_SKILL', 1, (event) => {
-      if (steroidEnabled && STEROID.includes(event.skill))
+      if (enabled && steroidEnabled && STEROID.includes(event.skill))
         delay = setTimeout(drinkBeer,150);
     });
 
     dispatch.hook('C_USE_ITEM', 1, event =>{
-      if(broochEnabled && BROOCH.includes(event.item)) {
+      if(enabled && broochEnabled && BROOCH.includes(event.item)) {
         delay = setTimeout(drinkBeer,150);
       }
     })
