@@ -84,9 +84,12 @@ module.exports = function lazyrootbeer(dispatch) {
         command.message('Rootbeer on brooch '+(broochEnabled ? 'enabled' : 'disabled')+'.');
         break;
       }
+      default: {
+        enabled = !enabled;
+        command.message('Lazy root beer '+(enabled ? 'enabled' : 'disabled')+'.');
+      }
     }
-    enabled = !enabled;
-    command.message('Lazy root beer '+(enabled ? 'enabled' : 'disabled')+'.');
+
   })
 
   function drinkBeer() {
