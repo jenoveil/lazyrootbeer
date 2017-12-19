@@ -1,20 +1,36 @@
 /*
-  Auto pop root beer when you pop brooch, or 1 second into boss enrage
+  Auto pop root beer when you pop brooch, self buff skills, or 1 second into boss enrage
 */
 const Command = require('command');
-const TRIGGER_ITEM = [51028,51011], // marrow or quatre brooch trigger rootbeer
+const BROOCH = [51028,51011], // marrow or quatre brooch trigger rootbeer
   ROOTBEER = 80081;
+// Steroid skill IDs
+/* const LANCER_ARUSH = 67279064;
+const WARRIOR_DG = 67309064;
+const SLAYER_ICB = 67309064;
+const SORC_MB = 67449064;
+const VALK_RAG = 67228964;
+const ZERK_BL = 67319064;
+const ZERK_FR = 67189464; */
+const STEROID = [67279064,67309064,67449064,67228964,67319064,67189464]
 
 module.exports = function lazyrootbeer(dispatch) {
   const command = Command(dispatch);
   let cid,
+    job,
     enabled = true,
+    enrageEnabled = true,
+    steroidEnabled = true,
+    broochEnabled = true,
     location,
     harrowhold = false,
     enraged = false,
     bosses = new Set()
 
-    dispatch.hook('S_LOGIN', 1, event =>{cid = event.cid})
+    dispatch.hook('S_LOGIN', 1, event =>{
+      ({cid, model} = event);
+      job = (model - 10101) % 100;
+    })
   	dispatch.hook('C_PLAYER_LOCATION', 1, event =>{location = event})
     // disable auto popping root beer in p4 hh
     dispatch.hook('S_LOAD_TOPO', 1, event => {
@@ -28,25 +44,47 @@ module.exports = function lazyrootbeer(dispatch) {
     })
 
     dispatch.hook('S_NPC_STATUS', 1, (event) => {
-      if (!enabled || harrowhold) return
+      if (!enrageEnabled || !enabled || harrowhold) return
       if (!bosses.has("" + event.creature)) return
 
       if (event.enraged == 1 && !enraged) {
         enraged = true;
-        delay = setTimeout(drinkBeer,1000);
+        delay = setTimeout(drinkBeer,1000); // 1 second delay
       }
       else if (event.enraged == 0 && enraged) {
         enraged = false;
       }
     })
 
+    dispatch.hook('C_START_SKILL', 1, (event) => {
+      if (steroidEnabled && STEROID.includes(event.skill))
+        delay = setTimeout(drinkBeer,150);
+    });
+
     dispatch.hook('C_USE_ITEM', 1, event =>{
-      if(TRIGGER_ITEM.includes(event.item)) {
+      if(broochEnabled && BROOCH.includes(event.item)) {
         delay = setTimeout(drinkBeer,150);
       }
     })
 
-  command.add('lazyrootbeer', () => {
+  command.add('lazy', (cmd) => {
+    switch (cmd) {
+      case 'enrage': {
+        enrageEnabled = !enrageEnabled;
+        command.message('Rootbeer on enrage '+(enrageEnabled ? 'enabled' : 'disabled')+'.');
+        break;
+      }
+      case 'steroid': {
+        steroidEnabled = !steroidEnabled;
+        command.message('Rootbeer on steroid '+(steroidEnabled ? 'enabled' : 'disabled')+'.');
+        break;
+      }
+      case 'brooch': {
+        broochEnabled = !broochEnabled;
+        command.message('Rootbeer on brooch '+(broochEnabled ? 'enabled' : 'disabled')+'.');
+        break;
+      }
+    }
     enabled = !enabled;
     command.message('Lazy root beer '+(enabled ? 'enabled' : 'disabled')+'.');
   })
