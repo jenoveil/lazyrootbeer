@@ -1,5 +1,6 @@
 /*
   Auto pop root beer when you pop brooch, self buff skills, or 1 second into boss enrage
+  incomplete steroid list
 */
 const Command = require('command');
 const BROOCH = [51028,51011], // marrow or quatre brooch trigger rootbeer
@@ -16,8 +17,9 @@ const STEROID = [67279064,67309064,67449064,67228964,67319064,67189464]
 
 module.exports = function lazyrootbeer(dispatch) {
   const command = Command(dispatch);
-  let cid,
+  let gameId,
     job,
+    templateId,
     enabled = true,
     enrageEnabled = true,
     steroidEnabled = true,
@@ -27,9 +29,9 @@ module.exports = function lazyrootbeer(dispatch) {
     enraged = false,
     bosses = new Set()
 
-    dispatch.hook('S_LOGIN', 1, event =>{
-      ({cid, model} = event);
-      job = (model - 10101) % 100;
+    dispatch.hook('S_LOGIN', 10, event =>{
+      ({gameId, templateId} = event);
+      job = (templateId - 10101) % 100;
     })
   	dispatch.hook('C_PLAYER_LOCATION', 1, event =>{location = event})
     // disable auto popping root beer in p4 hh
@@ -95,7 +97,7 @@ module.exports = function lazyrootbeer(dispatch) {
   function drinkBeer() {
     clearTimeout(delay)
     dispatch.toServer('C_USE_ITEM', 1, {
-      ownerId: cid,
+      ownerId: gameId,
       item: ROOTBEER,
       id: 0,
       unk1: 0,
